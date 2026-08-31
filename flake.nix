@@ -31,16 +31,25 @@
         in
         {
           default = pkgs.mkShell {
-            packages = [
+            packages = with pkgs; [
               node
               pnpm
-              pkgs.docker
+              openssl
+              prisma-engines
             ];
+
+            env = {
+              PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+
+              PRISMA_SCHEMA_ENGINE_BINARY = "${pkgs.prisma-engines}/bin/schema-engine";
+
+              PRISMA_FMT_BINARY = "${pkgs.prisma-engines}/bin/prisma-fmt";
+            };
 
             shellHook = ''
               echo "Node: $(node --version)"
               echo "pnpm: $(pnpm --version)"
-              echo "Docker: $(docker --version)"
+              echo "Prisma: $(pnpm prisma --version)"
             '';
           };
         }
