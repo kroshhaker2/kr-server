@@ -1,0 +1,171 @@
+generator client {
+    provider = "prisma-client"
+    output   = "../src/generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+// ============================================================
+// POST
+// ============================================================
+
+model Post {
+    id String @id @default(uuid(7))
+
+    filename String
+    preview  String?
+    type     String
+    rating   String
+
+    createdAt DateTime @default(now())
+
+    uploadedById String?
+    uploadedBy   User?   @relation("UploadedPosts", fields: [uploadedById], references: [id], onDelete: SetNull)
+
+    moderatedById String?
+    moderatedBy   User?   @relation("ModeratedPosts", fields: [moderatedById], references: [id], onDelete: SetNull)
+
+    moderatedAt DateTime?
+
+    tags Tag[]
+}
+
+// ============================================================
+// TAG
+// ============================================================
+
+model Tag {
+    id   Int    @id @default(autoincrement())
+    name String @unique
+
+    posts Post[]
+}
+
+// ============================================================
+// USER
+// ============================================================
+
+model User {
+    id           String @id @default(uuid(7))
+
+    username String
+    
+    email        String @unique
+    passwordHash String
+
+    role UserRole @default(USER)
+
+    deletedAt DateTime?
+
+    uploadedPosts  Post[] @relation("UploadedPosts")
+    moderatedPosts Post[] @relation("ModeratedPosts")
+
+    sessions Session[]
+
+    moderationActions ModerationAction[] @relation("UserModerationActions")
+    performedActions  ModerationAction[] @relation("ModeratorActions")
+
+    restrictions UserRestriction[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+// ============================================================
+// USER ROLE
+// ============================================================
+
+enum UserRole {
+    USER
+    MODERATOR
+    ADMIN
+}
+
+// ============================================================
+// SESSION
+// ============================================================
+
+model Session {
+    id String @id @default(uuid(7))
+
+    tokenHash String @unique
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    expiresAt DateTime
+
+    lastUsedAt DateTime?
+}
+
+// ============================================================
+// CURRENT USER RESTRICTIONS
+// ============================================================
+
+model UserRestriction {
+    id String @id @default(uuid(7))
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    type RestrictionType
+
+    reason String?
+
+    // NULL = перманентно
+    expiresAt DateTime?
+
+    createdAt DateTime @default(now())
+
+    @@unique([userId, type])
+}
+
+// ============================================================
+// RESTRICTION TYPE
+// ============================================================
+
+enum RestrictionType {
+    BAN
+    UPLOAD_BAN
+}
+
+// ============================================================
+// MODERATION HISTORY
+// ============================================================
+
+model ModerationAction {
+    id String @id @default(uuid(7))
+
+    userId String
+    user   User   @relation("UserModerationActions", fields: [userId], references: [id], onDelete: Cascade)
+
+    moderatorId String
+    moderator   User   @relation("ModeratorActions", fields: [moderatorId], references: [id], onDelete: Restrict)
+
+    type ModerationActionType
+
+    reason String?
+
+    // NULL = перманентно
+    expiresAt DateTime?
+
+    createdAt DateTime @default(now())
+}
+
+// ============================================================
+// MODERATION ACTION TYPE
+// ============================================================
+
+enum ModerationActionType {
+    BAN
+    UNBAN
+
+    UPLOAD_BAN
+    UPLOAD_UNBAN
+
+    DELETE_ACCOUNT
+    RESTORE_ACCOUNT
+}
