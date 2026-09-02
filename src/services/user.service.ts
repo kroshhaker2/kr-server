@@ -60,12 +60,15 @@ export function createUserService(prisma: PrismaDb) {
                     error.code === "P2002"
                 ) {
                     const target = error.meta?.target;
+                    const constraintName =
+                        error.meta?.driverAdapterError?.cause?.constraint?.index ??
+                        (Array.isArray(target) ? target.join("_") : undefined);
 
-                    if (Array.isArray(target) && target.includes("email")) {
+                    if (constraintName?.includes("email")) {
                         throw getError("EMAIL_ALREADY_EXISTS");
                     }
 
-                    if (Array.isArray(target) && target.includes("username")) {
+                    if (constraintName?.includes("username")) {
                         throw getError("USERNAME_ALREADY_EXISTS");
                     }
                 }

@@ -1,8 +1,8 @@
-import type { FastifyPluginAsync } from "fastify";
+import fp from "fastify-plugin";
 import { ZodError } from "zod";
 import { AppError } from "./app-error.js";
 
-const errorHandler: FastifyPluginAsync = async (fastify) => {
+export default fp(async (fastify) => {
     fastify.setErrorHandler((error, request, reply) => {
         if (error instanceof AppError) {
             return reply.code(error.statusCode).send({
@@ -38,6 +38,4 @@ const errorHandler: FastifyPluginAsync = async (fastify) => {
             },
         });
     });
-};
-
-export default errorHandler;
+});

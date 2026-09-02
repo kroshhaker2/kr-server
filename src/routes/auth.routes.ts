@@ -54,6 +54,20 @@ const auth: FastifyPluginAsync = async (fastify) => {
 
         return reply.code(204).send();
     });
+
+    fastify.get("/auth/me", async (req, reply) => {
+        await fastify.authenticate(req);
+
+        const user = req.user!;
+
+        return reply.code(200).send({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            createdAt: user.createdAt,
+        });
+    });
 };
 
 export default auth;
