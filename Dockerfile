@@ -12,7 +12,9 @@ FROM base AS build
 
 COPY . .
 
-RUN pnpm prisma generate && pnpm build
+RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" \
+    pnpm prisma generate && \
+    pnpm build
 
 
 FROM node:24-alpine AS production
