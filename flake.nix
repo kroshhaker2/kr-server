@@ -36,6 +36,7 @@
               pnpm
               openssl
               prisma-engines
+              hadolint
             ];
 
             env = {
