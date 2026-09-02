@@ -60,8 +60,20 @@ export function createUserService(prisma: PrismaDb) {
                     error.code === "P2002"
                 ) {
                     const target = error.meta?.target;
+
+                    const driverAdapterError = error.meta
+                        ?.driverAdapterError as
+                        | {
+                              cause?: {
+                                  constraint?: {
+                                      index?: string;
+                                  };
+                              };
+                          }
+                        | undefined;
+
                     const constraintName =
-                        error.meta?.driverAdapterError?.cause?.constraint?.index ??
+                        driverAdapterError?.cause?.constraint?.index ??
                         (Array.isArray(target) ? target.join("_") : undefined);
 
                     if (constraintName?.includes("email")) {

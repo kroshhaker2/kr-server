@@ -13,7 +13,8 @@
         "postinstall": "prisma skills sync || exit 0",
         "test": "vitest",
         "test:run": "vitest run",
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "typecheck": "tsc --noEmit"
     },
     "packageManager": "pnpm@10.34.5",
     "dependencies": {
