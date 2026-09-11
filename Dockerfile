@@ -26,7 +26,8 @@ RUN addgroup -S app && adduser -S app -G app
 RUN corepack enable
 
 COPY --chown=app:app package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --production
+RUN pnpm install --frozen-lockfile --production && \
+    chown -R app:app /app/node_modules
 
 COPY --chown=app:app --from=build /app/dist ./dist
 COPY --chown=app:app --from=build /app/src/generated ./src/generated
