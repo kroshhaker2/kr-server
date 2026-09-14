@@ -34,7 +34,8 @@ export async function buildApp() {
     await app.register(cookie);
 
     await app.register(cors, {
-        origin: true,
+        origin: config.CORS_ORIGINS,
+        credentials: true,
     });
 
     await app.register(prismaPlugin);
