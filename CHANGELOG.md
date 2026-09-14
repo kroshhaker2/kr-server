@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/kroshhaker2/kr-server/compare/v1.1.1...v1.1.2) (2026-09-14)
+
+
+### Bug Fixes
+
+* add CORS env ([a7d7f73](https://github.com/kroshhaker2/kr-server/commit/a7d7f73cae422cda9e05a8aed6c6a8b44a51926c))
+
 ## [1.1.1](https://github.com/kroshhaker2/kr-server/compare/v1.1.0...v1.1.1) (2026-09-14)
 
 
