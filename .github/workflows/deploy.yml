@@ -31,6 +31,7 @@ jobs:
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://test:test@localhost:5432/kr_test
+      CORS_ORIGINS: true
 
     steps:
       - name: Checkout
