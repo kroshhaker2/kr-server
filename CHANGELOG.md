@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/kroshhaker2/kr-server/compare/v1.1.0...v1.1.1) (2026-09-14)
+
+
+### Bug Fixes
+
+* add token to release-please workflow ([2278719](https://github.com/kroshhaker2/kr-server/commit/2278719e6d9629e267346eec75f535b73423fb08))
+
 ## [1.1.0](https://github.com/kroshhaker2/kr-server/compare/v1.0.0...v1.1.0) (2026-09-14)
 
 
