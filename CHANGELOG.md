@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.4](https://github.com/kroshhaker2/kr-server/compare/v1.2.3...v1.2.4) (2026-09-24)
+
+
+### Bug Fixes
+
+* **depoy:** Fix env ([ca922ea](https://github.com/kroshhaker2/kr-server/commit/ca922ea6e30003bfc56dd50f433a1d7b046311ef))
+
 ## [1.2.3](https://github.com/kroshhaker2/kr-server/compare/v1.2.2...v1.2.3) (2026-09-24)
 
 
