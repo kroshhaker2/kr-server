@@ -10,7 +10,7 @@ describe("GET /api/v1/health", () => {
     });
 
     afterAll(async () => {
-        await app.close();
+        await app?.close();
     });
 
     it("returns 200 with status ok", async () => {

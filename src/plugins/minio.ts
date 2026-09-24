@@ -1,9 +1,9 @@
 import fp from "fastify-plugin";
-import Minio from "minio";
+import { Client } from "minio";
 
 import { config } from "../config/config.js";
 
-const minio = new Minio.Client({
+const minio = new Client({
     endPoint: config.MINIO_ENDPOINT,
     port: config.MINIO_PORT,
     useSSL: config.MINIO_USE_SSL,
@@ -15,10 +15,12 @@ const minio = new Minio.Client({
 export default fp(async (fastify) => {
     const bucket = config.MINIO_BUCKET;
 
-    const exists = await minio.bucketExists(bucket);
+    if (config.NODE_ENV !== "test") {
+        const exists = await minio.bucketExists(bucket);
 
-    if (!exists) {
-        await minio.makeBucket(bucket);
+        if (!exists) {
+            await minio.makeBucket(bucket);
+        }
     }
 
     fastify.decorate("minio", minio);

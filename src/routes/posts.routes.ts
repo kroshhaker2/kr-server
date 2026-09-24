@@ -88,7 +88,7 @@ const posts: FastifyPluginAsync = async (fastify) => {
             ...(data.sourceUrl !== undefined && { sourceUrl: data.sourceUrl }),
         };
 
-        postsService.create(post);
+        await postsService.create(post);
 
         return reply.code(201).send();
     });
