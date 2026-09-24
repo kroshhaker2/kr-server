@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/kroshhaker2/kr-server/compare/v1.2.1...v1.2.2) (2026-09-24)
+
+
+### Bug Fixes
+
+* Fix vitest ([16d34ae](https://github.com/kroshhaker2/kr-server/commit/16d34ae17ec428b6b9d7d9b32cce6f4defe851e2))
+
 ## [1.2.1](https://github.com/kroshhaker2/kr-server/compare/v1.2.0...v1.2.1) (2026-09-24)
 
 
