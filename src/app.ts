@@ -2,9 +2,11 @@ import Fastify from "fastify";
 
 import cookie from "@fastify/cookie";
 import cors from "@fastify/cors";
+import multipart from "@fastify/multipart";
 
 import prismaPlugin from "./plugins/prisma.js";
 import errorPlugin from "./errors/error.plugin.js";
+import minioPlugin from "./plugins/minio.js";
 import errorHandler from "./errors/error-handler.js";
 import authPlugin from "./plugins/auth.js";
 
@@ -33,6 +35,15 @@ export async function buildApp() {
 
     await app.register(cookie);
 
+    await app.register(multipart, {
+        limits: {
+            files: 1,
+            fields: 1,
+            parts: 2,
+            fileSize: 20 * 1024 * 1024, // 20 МиБ
+        },
+    });
+
     await app.register(cors, {
         origin: config.CORS_ORIGINS,
         credentials: true,
@@ -41,6 +52,8 @@ export async function buildApp() {
     await app.register(prismaPlugin);
 
     await app.register(errorPlugin);
+
+    await app.register(minioPlugin);
 
     await app.register(errorHandler);
 

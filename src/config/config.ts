@@ -18,6 +18,17 @@ const envSchema = z.object({
             .map((origin) => origin.trim())
             .filter(Boolean),
     ),
+
+    STORAGE_URL: z.url().default("http://localhost:9000"),
+
+    MINIO_ENDPOINT: z.string().min(1),
+    MINIO_PORT: z.coerce.number().int().positive().default(9000),
+    MINIO_USE_SSL: z.coerce.boolean().default(false),
+
+    MINIO_ACCESS_KEY: z.string().min(8),
+    MINIO_SECRET_KEY: z.string().min(12),
+
+    MINIO_BUCKET: z.string().min(1),
 });
 
 const parsed = envSchema.safeParse(process.env);

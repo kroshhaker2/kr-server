@@ -4,11 +4,18 @@ import type { User } from "../generated/prisma/client.js";
 declare module "fastify" {
     interface FastifyInstance {
         prisma: PrismaClient;
-        error: (code: import("../errors/error-codes.js").ErrorCode) => import("../errors/app-error.js").AppError;
+        error: (
+            code: import("../errors/error-codes.js").ErrorCode,
+        ) => import("../errors/app-error.js").AppError;
         authenticate: (request: FastifyRequest) => Promise<void>;
     }
 
     interface FastifyRequest {
         user?: User | null;
+    }
+
+    interface FastifyInstance {
+        minio: Minio.Client;
+        minioBucket: string;
     }
 }

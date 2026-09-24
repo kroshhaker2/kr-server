@@ -24,11 +24,15 @@ export const ErrorCode = {
     SESSION_NOT_FOUND: "SESSION_NOT_FOUND",
 
     POST_NOT_FOUND: "POST_NOT_FOUND",
+    FILE_REQUIRED: "FILE_REQUIRED",
+    UNSUPPORTED_FILE_TYPE: "UNSUPPORTED_FILE_TYPE",
+    METADATA_REQUIRED: "METADATA_REQUIRED",
+    INVALID_JSON: "INVALID_JSON",
 } as const;
 
 export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
 
-export type HttpStatus = 400 | 401 | 403 | 404 | 409 | 422 | 500;
+export type HttpStatus = 400 | 401 | 403 | 404 | 409 | 415 | 422 | 500;
 
 export type ErrorConfig = Record<
     ErrorCode,
@@ -114,5 +118,21 @@ export const errorConfig: ErrorConfig = {
     [ErrorCode.POST_NOT_FOUND]: {
         status: 404,
         message: "Post not found",
+    },
+    [ErrorCode.FILE_REQUIRED]: {
+        status: 400,
+        message: "File is required",
+    },
+    [ErrorCode.UNSUPPORTED_FILE_TYPE]: {
+        status: 415,
+        message: "Unsupported file type",
+    },
+    [ErrorCode.METADATA_REQUIRED]: {
+        status: 400,
+        message: "Metadata must be provided as a text field",
+    },
+    [ErrorCode.INVALID_JSON]: {
+        status: 400,
+        message: "Invalid JSON",
     },
 };

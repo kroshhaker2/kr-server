@@ -23,15 +23,12 @@ function getArg(name: string): string | undefined {
 }
 
 function generatePassword(length = 20): string {
-    return crypto
-        .randomBytes(length)
-        .toString("base64url")
-        .slice(0, length);
+    return crypto.randomBytes(length).toString("base64url").slice(0, length);
 }
 
 async function main() {
     const username = getArg("username") ?? "admin";
-    const email = getArg("email") ?? `${username}@localhost`;
+    const email = getArg("email") ?? `${username}@example.com`;
 
     const providedPassword = getArg("password");
     const password = providedPassword ?? generatePassword();

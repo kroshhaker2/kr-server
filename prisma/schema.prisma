@@ -11,13 +11,32 @@ datasource db {
 // POST
 // ============================================================
 
+enum Rating {
+    SAFE
+    QUESTIONABLE
+    EXPLICIT
+}
+
+enum PostStatus {
+    PENDING
+    APPROVED
+    REJECTED
+    DELETED
+}
+
 model Post {
     id String @id @default(uuid(7))
 
-    filename String
-    preview  String?
-    type     String
-    rating   String
+    title       String?
+    description String?
+    rating      Rating
+
+    originalFilename String
+    mimeType String
+    size BigInt
+
+    originalKey String
+    previewKey  String?
 
     createdAt DateTime @default(now())
 
@@ -30,6 +49,14 @@ model Post {
     moderatedAt DateTime?
 
     tags Tag[]
+
+    status PostStatus @default(PENDING)
+
+    views     Int @default(0)
+    favorites Int @default(0)
+
+    sourceUrl String?
+    deletedAt DateTime?
 }
 
 // ============================================================
@@ -39,8 +66,22 @@ model Post {
 model Tag {
     id   Int    @id @default(autoincrement())
     name String @unique
+    type TagType
 
     posts Post[]
+}
+
+enum TagType {
+    GENERAL
+    META
+    AUTHOR
+    CHARACTER
+    SPECIES
+    SERIES
+    SOURCE
+    LOCATION
+    EVENT
+    COPYRIGHT
 }
 
 // ============================================================
