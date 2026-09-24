@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1](https://github.com/kroshhaker2/kr-server/compare/v1.2.0...v1.2.1) (2026-09-24)
+
+
+### Bug Fixes
+
+* Add env to deploy pipeline ([095022c](https://github.com/kroshhaker2/kr-server/commit/095022c6a557789a1dbd7426d66e3ecd898ce19d))
+* Fix env to deploy pipeline ([1aa3757](https://github.com/kroshhaker2/kr-server/commit/1aa375744a3f18f5e100f6e5a6ac28d8c470bb2c))
+
 ## [1.2.0](https://github.com/kroshhaker2/kr-server/compare/v1.1.2...v1.2.0) (2026-09-24)
 
 
