@@ -4,16 +4,16 @@ import { Client } from "minio";
 import { config } from "../config/config.js";
 
 const minio = new Client({
-    endPoint: config.MINIO_ENDPOINT,
-    port: config.MINIO_PORT,
-    useSSL: config.MINIO_USE_SSL,
+    endPoint: config.S3_ENDPOINT,
+    port: config.S3_PORT,
+    useSSL: config.S3_USE_SSL,
 
-    accessKey: config.MINIO_ACCESS_KEY,
-    secretKey: config.MINIO_SECRET_KEY,
+    accessKey: config.S3_ACCESS_KEY,
+    secretKey: config.S3_SECRET_KEY,
 });
 
 export default fp(async (fastify) => {
-    const bucket = config.MINIO_BUCKET;
+    const bucket = config.S3_BUCKET;
 
     if (config.NODE_ENV !== "test") {
         const exists = await minio.bucketExists(bucket);

@@ -162,7 +162,7 @@ export function createPostsService(
             const preview = await createPreview(data.file);
 
             await minio.putObject(
-                config.MINIO_BUCKET,
+                config.S3_BUCKET,
                 originalKey,
                 data.file,
                 data.file.length,
@@ -172,7 +172,7 @@ export function createPostsService(
             );
 
             await minio.putObject(
-                config.MINIO_BUCKET,
+                config.S3_BUCKET,
                 previewKey,
                 preview,
                 preview.length,

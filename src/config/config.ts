@@ -21,14 +21,17 @@ const envSchema = z.object({
 
     STORAGE_URL: z.url().default("http://localhost:9000"),
 
-    MINIO_ENDPOINT: z.string().min(1),
-    MINIO_PORT: z.coerce.number().int().positive().default(9000),
-    MINIO_USE_SSL: z.coerce.boolean().default(false),
+    S3_ENDPOINT: z.string().min(1),
+    S3_PORT: z.coerce.number().int().positive().default(9000),
+    S3_USE_SSL: z
+        .enum(["true", "false"])
+        .default("false")
+        .transform((value) => value === "true"),
 
-    MINIO_ACCESS_KEY: z.string().min(1),
-    MINIO_SECRET_KEY: z.string().min(12),
+    S3_ACCESS_KEY: z.string().min(1),
+    S3_SECRET_KEY: z.string().min(12),
 
-    MINIO_BUCKET: z.string().min(1),
+    S3_BUCKET: z.string().min(1),
 });
 
 const parsed = envSchema.safeParse(process.env);
