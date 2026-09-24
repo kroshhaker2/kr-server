@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/kroshhaker2/kr-server/compare/v1.2.2...v1.2.3) (2026-09-24)
+
+
+### Bug Fixes
+
+* Env MINIO to S3 ([97413fe](https://github.com/kroshhaker2/kr-server/commit/97413fef96298101f46b124d9921e467082024c0))
+
 ## [1.2.2](https://github.com/kroshhaker2/kr-server/compare/v1.2.1...v1.2.2) (2026-09-24)
 
 
