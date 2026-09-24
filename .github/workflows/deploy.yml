@@ -32,12 +32,12 @@ jobs:
             NODE_ENV: test
             DATABASE_URL: postgresql://test:test@localhost:5432/kr_test
             CORS_ORIGINS: true
-            MINIO_ENDPOINT: localhost
-            MINIO_PORT: 9000
-            MINIO_USE_SSL: false
-            MINIO_ACCESS_KEY: kr
-            MINIO_SECRET_KEY: your-long-secret-key
-            MINIO_BUCKET: posts
+            S3_ENDPOINT: localhost
+            S3_PORT: 9000
+            S3_USE_SSL: false
+            S3_ACCESS_KEY: kr
+            S3_SECRET_KEY: your-long-secret-key
+            S3_BUCKET: posts
 
         steps:
             - name: Checkout
