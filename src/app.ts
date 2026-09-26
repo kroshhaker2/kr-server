@@ -13,6 +13,8 @@ import authPlugin from "./plugins/auth.js";
 import healthRoute from "./routes/health.routes.js";
 import postsRoute from "./routes/posts.routes.js";
 import authRoute from "./routes/auth.routes.js";
+import adminRoute from "./routes/admin.routes.js";
+
 import { config } from "./config/config.js";
 
 export async function buildApp() {
@@ -68,6 +70,10 @@ export async function buildApp() {
     });
 
     await app.register(authRoute, {
+        prefix: "/api/v1",
+    });
+
+    await app.register(adminRoute, {
         prefix: "/api/v1",
     });
 

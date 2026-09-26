@@ -797,6 +797,83 @@ describe("Auth", () => {
                 email,
                 role: "USER",
                 createdAt: expect.any(String),
+                currentBan: null,
+                uploadBan: null,
+            });
+        });
+
+        it("returns active user restrictions", async () => {
+            const email = uniqueEmail();
+            const username = uniqueUsername();
+            const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+            await registerUser(app, { username, email, password });
+
+            const loginResponse = await loginUser(app, { email, password });
+            const cookie = extractSessionCookie(loginResponse)!;
+            const user = await app.prisma.user.findUniqueOrThrow({
+                where: { email },
+            });
+
+            await app.prisma.userRestriction.createMany({
+                data: [
+                    {
+                        userId: user.id,
+                        type: "BAN",
+                        reason: "Test ban",
+                        expiresAt,
+                    },
+                    {
+                        userId: user.id,
+                        type: "UPLOAD_BAN",
+                        reason: "Test upload ban",
+                        expiresAt: null,
+                    },
+                ],
+            });
+
+            const response = await getMe(app, cookie);
+
+            expect(response.statusCode).toBe(200);
+            expect(response.json()).toMatchObject({
+                currentBan: {
+                    reason: "Test ban",
+                    expiresAt: expiresAt.toISOString(),
+                },
+                uploadBan: {
+                    reason: "Test upload ban",
+                    expiresAt: null,
+                },
+            });
+        });
+
+        it("ignores expired user restrictions", async () => {
+            const email = uniqueEmail();
+            const username = uniqueUsername();
+
+            await registerUser(app, { username, email, password });
+
+            const loginResponse = await loginUser(app, { email, password });
+            const cookie = extractSessionCookie(loginResponse)!;
+            const user = await app.prisma.user.findUniqueOrThrow({
+                where: { email },
+            });
+
+            await app.prisma.userRestriction.create({
+                data: {
+                    userId: user.id,
+                    type: "BAN",
+                    reason: "Expired ban",
+                    expiresAt: new Date(Date.now() - 1000),
+                },
+            });
+
+            const response = await getMe(app, cookie);
+
+            expect(response.statusCode).toBe(200);
+            expect(response.json()).toMatchObject({
+                currentBan: null,
+                uploadBan: null,
             });
         });
 

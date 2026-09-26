@@ -46,6 +46,8 @@ const posts: FastifyPluginAsync = async (fastify) => {
     fastify.post("/posts", async (req, reply) => {
         await fastify.authenticate(req);
 
+        if (!req.user || req.user.uploadBan) throw fastify.error("FORBIDDEN"); 
+
         const part = await req.file();
 
         if (!part) {
@@ -76,6 +78,7 @@ const posts: FastifyPluginAsync = async (fastify) => {
         const data = uploadPostSchema.parse(json);
 
         const post: createPost = {
+            userId: req.user.id,
             rating: data.rating,
             tags: data.tags,
             file: buffer,

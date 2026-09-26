@@ -1,13 +1,14 @@
 import { fileTypeFromBuffer } from "file-type";
 
-import { Prisma, type Post } from "../generated/prisma/client.js";
+import { PostStatus, Prisma, type Post } from "../generated/prisma/client.js";
 import { PrismaDb } from "../types/db.types.js";
 import { createPost, PostFilters } from "../types/posts.types.js";
 import { createObjectKey } from "../utils/minio.js";
-import fastify, { FastifyInstance } from "fastify";
+import { FastifyInstance } from "fastify";
 import { Client } from "minio";
 import { config } from "../config/config.js";
 import { createPreview } from "../utils/preview.js";
+import { SortOrder } from "../generated/prisma/internal/prismaNamespace.js";
 
 export function createPostsService(
     prisma: PrismaDb,
@@ -56,6 +57,7 @@ export function createPostsService(
 
         return {
             deletedAt: null,
+            status: PostStatus.APPROVED,
             ...(rating !== undefined && { rating }),
             ...(mimeType !== undefined && { mimeType }),
             ...(tagConditions.length > 0 && { AND: tagConditions }),
@@ -68,6 +70,7 @@ export function createPostsService(
                 where: {
                     id,
                     deletedAt: null,
+                    status: PostStatus.APPROVED,
                 },
             });
 
@@ -76,6 +79,73 @@ export function createPostsService(
             }
 
             return post;
+        },
+
+        async getByIdForModeration(id: string): Promise<Post> {
+            const post = await prisma.post.findFirst({
+                where: {
+                    id,
+                    deletedAt: null,
+                },
+            });
+
+            if (!post) {
+                throw error("POST_NOT_FOUND");
+            }
+
+            return post;
+        },
+
+        async getByIdIncludingDeleted(id: string): Promise<Post> {
+            const post = await prisma.post.findFirst({
+                where: {
+                    id,
+                },
+            });
+
+            if (!post) {
+                throw error("POST_NOT_FOUND");
+            }
+
+            return post;
+        },
+
+        async getPostForModeration(status: PostStatus, order: SortOrder) {
+            const post = await prisma.post.findFirst({
+                where: {
+                    deletedAt: null,
+                    status,
+                },
+                orderBy: {
+                    id: order,
+                },
+                include: {
+                    tags: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                    uploadedBy: {
+                        select: {
+                            id: true,
+                            username: true,
+                        },
+                    },
+                },
+            });
+
+            const postCount = await prisma.post.count({
+                where: {
+                    deletedAt: null,
+                    status,
+                },
+            });
+
+            if (!post) {
+                throw error("POST_NOT_FOUND");
+            }
+
+            return { post, postCount };
         },
 
         async getAll(filters: PostFilters = {}): Promise<Post[]> {
@@ -177,6 +247,7 @@ export function createPostsService(
                         views: 0,
                         favorites: 0,
                         originalKey: "",
+                        uploadedById: data.userId,
                     },
                 });
 
@@ -185,11 +256,7 @@ export function createPostsService(
                     detected.ext,
                     "original",
                 );
-                previewKey = createObjectKey(
-                    post.id,
-                    "webp",
-                    "preview",
-                );
+                previewKey = createObjectKey(post.id, "webp", "preview");
 
                 await minio.putObject(
                     config.S3_BUCKET,

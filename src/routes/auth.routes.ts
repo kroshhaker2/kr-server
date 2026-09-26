@@ -66,6 +66,18 @@ const auth: FastifyPluginAsync = async (fastify) => {
             email: user.email,
             role: user.role,
             createdAt: user.createdAt,
+            currentBan: user.currentBan
+                ? {
+                      reason: user.currentBan.reason,
+                      expiresAt: user.currentBan.expiresAt,
+                  }
+                : null,
+            uploadBan: user.uploadBan
+                ? {
+                      reason: user.uploadBan.reason,
+                      expiresAt: user.uploadBan.expiresAt,
+                  }
+                : null,
         });
     });
 };

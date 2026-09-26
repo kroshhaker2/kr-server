@@ -11,6 +11,7 @@ export type PostFilters = {
 };
 
 export type createPost = {
+    userId: string;
     rating: Rating;
     tags: string[];
     title?: string;

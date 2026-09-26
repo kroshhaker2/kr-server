@@ -1,6 +1,8 @@
-import { User } from "../generated/prisma/client.js";
 import { PrismaDb } from "../types/db.types.js";
-import type { CreatedSession } from "../types/session.types.js";
+import type {
+    AuthenticatedUser,
+    CreatedSession,
+} from "../types/session.types.js";
 import { generateToken, hashToken } from "../utils/token.js";
 import { error } from "../errors/error-factory.js";
 
@@ -33,15 +35,31 @@ export function createSessionService(prisma: PrismaDb) {
             await prisma.session.deleteMany({ where: { tokenHash } });
         },
 
-        async getUserBySession(token: string): Promise<User> {
+        async getUserBySession(token: string): Promise<AuthenticatedUser> {
             const tokenHash = hashToken(token);
+            const now = new Date();
 
             const session = await prisma.session.findUnique({
                 where: {
                     tokenHash,
                 },
                 include: {
-                    user: true,
+                    user: {
+                        include: {
+                            restrictions: {
+                                where: {
+                                    OR: [
+                                        {
+                                            expiresAt: null,
+                                        },
+                                        {
+                                            expiresAt: { gt: now },
+                                        },
+                                    ],
+                                },
+                            },
+                        },
+                    },
                 },
             });
 
@@ -49,7 +67,7 @@ export function createSessionService(prisma: PrismaDb) {
                 throw error("SESSION_NOT_FOUND");
             }
 
-            if (session.expiresAt <= new Date()) {
+            if (session.expiresAt <= now) {
                 await prisma.session.delete({
                     where: {
                         id: session.id,
@@ -63,7 +81,28 @@ export function createSessionService(prisma: PrismaDb) {
                 throw error("UNAUTHORIZED");
             }
 
-            return session.user;
+            const currentBan =
+                session.user.restrictions.find(
+                    (restriction) => restriction.type === "BAN",
+                ) ?? null;
+
+            const uploadBan =
+                session.user.restrictions.find(
+                    (restriction) => restriction.type === "UPLOAD_BAN",
+                ) ?? null;
+
+            return {
+                id: session.user.id,
+                username: session.user.username,
+                email: session.user.email,
+                passwordHash: session.user.passwordHash,
+                role: session.user.role,
+                deletedAt: session.user.deletedAt,
+                createdAt: session.user.createdAt,
+                updatedAt: session.user.updatedAt,
+                currentBan,
+                uploadBan,
+            };
         },
     };
 }

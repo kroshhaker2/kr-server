@@ -1,5 +1,5 @@
 import type { PrismaClient } from "../generated/prisma/client.js";
-import type { User } from "../generated/prisma/client.js";
+import type { AuthenticatedUser } from "./session.types.js";
 
 declare module "fastify" {
     interface FastifyInstance {
@@ -11,7 +11,7 @@ declare module "fastify" {
     }
 
     interface FastifyRequest {
-        user?: User | null;
+        user?: AuthenticatedUser | null;
     }
 
     interface FastifyInstance {
