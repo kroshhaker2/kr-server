@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/kroshhaker2/kr-server/compare/v1.3.0...v1.4.0) (2026-09-26)
+
+
+### Features
+
+* **tags:** Add tags endpoits ([d4ce6b7](https://github.com/kroshhaker2/kr-server/commit/d4ce6b7b56225f39272f5427f29334f515252bab))
+
 ## [1.3.0](https://github.com/kroshhaker2/kr-server/compare/v1.2.4...v1.3.0) (2026-09-26)
 
 
