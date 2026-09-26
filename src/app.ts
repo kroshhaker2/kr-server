@@ -14,6 +14,7 @@ import healthRoute from "./routes/health.routes.js";
 import postsRoute from "./routes/posts.routes.js";
 import authRoute from "./routes/auth.routes.js";
 import adminRoute from "./routes/admin.routes.js";
+import tagsRoute from "./routes/tags.routes.js";
 
 import { config } from "./config/config.js";
 
@@ -75,6 +76,10 @@ export async function buildApp() {
     });
 
     await app.register(adminRoute, {
+        prefix: "/api/v1",
+    });
+
+    await app.register(tagsRoute, {
         prefix: "/api/v1",
     });
 

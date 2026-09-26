@@ -24,6 +24,7 @@ export const ErrorCode = {
     SESSION_NOT_FOUND: "SESSION_NOT_FOUND",
 
     POST_NOT_FOUND: "POST_NOT_FOUND",
+    TAG_NOT_FOUND: "TAG_NOT_FOUND",
     FILE_REQUIRED: "FILE_REQUIRED",
     UNSUPPORTED_FILE_TYPE: "UNSUPPORTED_FILE_TYPE",
     METADATA_REQUIRED: "METADATA_REQUIRED",
@@ -118,6 +119,10 @@ export const errorConfig: ErrorConfig = {
     [ErrorCode.POST_NOT_FOUND]: {
         status: 404,
         message: "Post not found",
+    },
+    [ErrorCode.TAG_NOT_FOUND]: {
+        status: 404,
+        message: "Tag not found",
     },
     [ErrorCode.FILE_REQUIRED]: {
         status: 400,
