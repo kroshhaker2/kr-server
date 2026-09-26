@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0](https://github.com/kroshhaker2/kr-server/compare/v1.2.4...v1.3.0) (2026-09-26)
+
+
+### Features
+
+* **admin:** Add posts moderation ([bc86a29](https://github.com/kroshhaker2/kr-server/commit/bc86a29d313b138f3e76b5a85775fd80b1bfcc6b))
+* **app:** Add PUT methods to CORS ([0a3e62f](https://github.com/kroshhaker2/kr-server/commit/0a3e62fa67d2f6ef787c6faa2e58c81ad38ba24e))
+* **service/posts:** Add cleanup was incomplete ([6785ded](https://github.com/kroshhaker2/kr-server/commit/6785ded2ce585190160ce483a544c857c691f1e9))
+
 ## [1.2.4](https://github.com/kroshhaker2/kr-server/compare/v1.2.3...v1.2.4) (2026-09-24)
 
 
