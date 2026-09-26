@@ -49,6 +49,7 @@ export async function buildApp() {
     await app.register(cors, {
         origin: config.CORS_ORIGINS,
         credentials: true,
+        methods: ["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"],
     });
 
     await app.register(prismaPlugin);
