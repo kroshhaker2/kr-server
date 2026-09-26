@@ -14,6 +14,54 @@ export function createPostsService(
     error: FastifyInstance["error"],
     minio: Client,
 ) {
+    async function buildWhere(
+        filters: PostFilters,
+    ): Promise<Prisma.PostWhereInput> {
+        const { rating, mimeType, tags } = filters;
+        const tagConditions: Prisma.PostWhereInput[] = [];
+
+        if (tags?.length) {
+            const existingTags = await prisma.tag.findMany({
+                where: {
+                    name: {
+                        in: tags,
+                    },
+                },
+                select: {
+                    name: true,
+                },
+            });
+
+            const existingTagNames = new Set(
+                existingTags.map((tag) => tag.name),
+            );
+
+            for (const name of tags) {
+                if (existingTagNames.has(name)) {
+                    tagConditions.push({
+                        tags: {
+                            some: { name },
+                        },
+                    });
+                } else {
+                    tagConditions.push({
+                        suggestedTags: {
+                            contains: name,
+                            mode: "insensitive",
+                        },
+                    });
+                }
+            }
+        }
+
+        return {
+            deletedAt: null,
+            ...(rating !== undefined && { rating }),
+            ...(mimeType !== undefined && { mimeType }),
+            ...(tagConditions.length > 0 && { AND: tagConditions }),
+        };
+    }
+
     return {
         async getById(id: string): Promise<Post> {
             const post = await prisma.post.findFirst({
@@ -31,23 +79,10 @@ export function createPostsService(
         },
 
         async getAll(filters: PostFilters = {}): Promise<Post[]> {
-            const { rating, mimeType, tags } = filters;
+            const where = await buildWhere(filters);
 
             return prisma.post.findMany({
-                where: {
-                    deletedAt: null,
-
-                    ...(rating !== undefined && { rating }),
-                    ...(mimeType !== undefined && { mimeType }),
-
-                    ...(tags?.length && {
-                        AND: tags.map((name) => ({
-                            tags: {
-                                some: { name },
-                            },
-                        })),
-                    }),
-                },
+                where,
                 orderBy: {
                     id: "desc",
                 },
@@ -69,16 +104,7 @@ export function createPostsService(
                 sort = "newest",
             } = filters;
 
-            const where: Prisma.PostWhereInput = {
-                deletedAt: null,
-                ...(rating !== undefined && { rating }),
-                ...(mimeType !== undefined && { mimeType }),
-                ...(tags?.length && {
-                    AND: tags.map((name) => ({
-                        tags: { some: { name } },
-                    })),
-                }),
-            };
+            const where = await buildWhere({ rating, mimeType, tags });
 
             const sorting: Record<
                 NonNullable<PostFilters["sort"]>,
@@ -133,63 +159,104 @@ export function createPostsService(
                 throw error("UNSUPPORTED_FILE_TYPE");
             }
 
-            const post = await prisma.post.create({
-                data: {
-                    rating: data.rating,
-                    title: data.title,
-                    description: data.description,
-                    sourceUrl: data.sourceUrl,
-                    originalFilename: data.filename,
-                    size: BigInt(data.file.length),
-                    mimeType: detected.mime,
-                    views: 0,
-                    favorites: 0,
-                    originalKey: "",
-                },
-            });
-
-            const originalKey = createObjectKey(
-                post.id,
-                detected.ext,
-                "original",
-            );
-            const previewKey = createObjectKey(
-                post.id,
-                "webp",
-                "preview",
-            );
-
             const preview = await createPreview(data.file);
+            let post: Post | undefined;
+            let originalKey: string | undefined;
+            let previewKey: string | undefined;
 
-            await minio.putObject(
-                config.S3_BUCKET,
-                originalKey,
-                data.file,
-                data.file.length,
-                {
-                    "Content-Type": detected.mime,
-                },
-            );
+            try {
+                post = await prisma.post.create({
+                    data: {
+                        rating: data.rating,
+                        title: data.title,
+                        description: data.description,
+                        sourceUrl: data.sourceUrl,
+                        originalFilename: data.filename,
+                        size: BigInt(data.file.length),
+                        mimeType: detected.mime,
+                        views: 0,
+                        favorites: 0,
+                        originalKey: "",
+                    },
+                });
 
-            await minio.putObject(
-                config.S3_BUCKET,
-                previewKey,
-                preview,
-                preview.length,
-                {
-                    "Content-Type": "image/webp",
-                },
-            );
+                originalKey = createObjectKey(
+                    post.id,
+                    detected.ext,
+                    "original",
+                );
+                previewKey = createObjectKey(
+                    post.id,
+                    "webp",
+                    "preview",
+                );
 
-            return prisma.post.update({
-                where: {
-                    id: post.id,
-                },
-                data: {
+                await minio.putObject(
+                    config.S3_BUCKET,
                     originalKey,
+                    data.file,
+                    data.file.length,
+                    {
+                        "Content-Type": detected.mime,
+                    },
+                );
+
+                await minio.putObject(
+                    config.S3_BUCKET,
                     previewKey,
-                },
-            });
+                    preview,
+                    preview.length,
+                    {
+                        "Content-Type": "image/webp",
+                    },
+                );
+
+                return await prisma.post.update({
+                    where: {
+                        id: post.id,
+                    },
+                    data: {
+                        originalKey,
+                        previewKey,
+                    },
+                });
+            } catch (creationError) {
+                const cleanupTasks: PromiseLike<unknown>[] = [];
+
+                if (originalKey) {
+                    cleanupTasks.push(
+                        minio.removeObject(config.S3_BUCKET, originalKey),
+                    );
+                }
+
+                if (previewKey) {
+                    cleanupTasks.push(
+                        minio.removeObject(config.S3_BUCKET, previewKey),
+                    );
+                }
+
+                if (post) {
+                    cleanupTasks.push(
+                        prisma.post.deleteMany({
+                            where: { id: post.id },
+                        }),
+                    );
+                }
+
+                const cleanupResults = await Promise.allSettled(cleanupTasks);
+                const cleanupErrors = cleanupResults.flatMap((result) =>
+                    result.status === "rejected" ? [result.reason] : [],
+                );
+
+                if (cleanupErrors.length > 0) {
+                    throw new AggregateError(
+                        [creationError, ...cleanupErrors],
+                        "Post creation failed and cleanup was incomplete",
+                    );
+                }
+
+                throw creationError;
+            }
         },
 
         async update(

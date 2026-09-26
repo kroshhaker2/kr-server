@@ -49,6 +49,7 @@ model Post {
     moderatedAt DateTime?
 
     tags Tag[]
+    suggestedTags String?
 
     status PostStatus @default(PENDING)
 
