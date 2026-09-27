@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/kroshhaker2/kr-server/compare/v1.4.0...v1.4.1) (2026-09-27)
+
+
+### Bug Fixes
+
+* **post:** Fix tags type ([785284a](https://github.com/kroshhaker2/kr-server/commit/785284aaf3481d44149c687951eea230609b816c))
+
 ## [1.4.0](https://github.com/kroshhaker2/kr-server/compare/v1.3.0...v1.4.0) (2026-09-26)
 
 
