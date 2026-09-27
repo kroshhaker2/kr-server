@@ -53,7 +53,12 @@ export const uploadPostSchema = z.object({
         .optional()
         .transform((value) => value || undefined),
 
-    tags: z.array(z.uuidv7()).max(30).optional().default([]),
+    tags: z
+        .array(z.string().trim().min(1).max(64))
+        .max(50)
+        .optional()
+        .default([])
+        .transform((tags) => [...new Set(tags)]),
 
     rating: z.enum(Rating),
 

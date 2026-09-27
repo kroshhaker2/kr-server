@@ -229,6 +229,23 @@ export function createPostsService(
                 throw error("UNSUPPORTED_FILE_TYPE");
             }
 
+            const existingTags = await prisma.tag.findMany({
+                where: {
+                    name: {
+                        in: data.tags,
+                    },
+                },
+                select: {
+                    name: true,
+                },
+            });
+            const existingTagNames = new Set(
+                existingTags.map((tag) => tag.name),
+            );
+            const suggestedTags = data.tags.filter(
+                (name) => !existingTagNames.has(name),
+            );
+
             const preview = await createPreview(data.file);
             let post: Post | undefined;
             let originalKey: string | undefined;
@@ -248,6 +265,13 @@ export function createPostsService(
                         favorites: 0,
                         originalKey: "",
                         uploadedById: data.userId,
+                        tags: {
+                            connect: existingTags.map(({ name }) => ({ name })),
+                        },
+                        suggestedTags:
+                            suggestedTags.length > 0
+                                ? suggestedTags.join(", ")
+                                : null,
                     },
                 });
 
